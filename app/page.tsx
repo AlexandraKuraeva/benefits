@@ -4,7 +4,15 @@ import Link from 'next/link';
 import { lusitana } from '@/app/ui/fonts';
 import Image from 'next/image';
 
+import { createClient } from '@supabase/supabase-js'
+
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+)
+
 export default function Page() {
+  console.log(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
   return (
 
     <main className="flex min-h-screen flex-col p-6">
