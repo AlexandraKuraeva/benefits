@@ -119,13 +119,14 @@ export async function fetchFilteredInvoices(
 
 			.from('invoices')
 			.select(
-				` amount, 
-           date, 
-           status, 
-           customers(
-              name, 
-              email, 
-              image_url
+				` id,
+					amount, 
+          date, 
+          status, 
+          customers(
+            name, 
+            email, 
+            image_url
            )
            `
 			)
@@ -171,7 +172,7 @@ export async function fetchInvoiceById(id: string) {
 		const { data, error } = await supabase
 			.from('invoices')
 			.select('id, customer_id, amount, status')
-			.match({ id })
+			.eq('id', id)
 			.single()
 
 		if (error) throw error
