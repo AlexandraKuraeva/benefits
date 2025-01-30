@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { formatCurrency } from './utils'
+import { Invoice } from './definitions'
 
 export const supabase = createClient(
 	process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
@@ -112,9 +113,9 @@ export async function fetchCardData() {
 
 export async function fetchFilteredInvoices(
 	query: string,
-) {
+): Promise<Invoice[] > {
 
-	try {
+	
 		const { data, error } = await supabase
 
 			.from('invoices')
@@ -136,36 +137,35 @@ export async function fetchFilteredInvoices(
       .order('date', { ascending: false })
      
 
-      if (error) throw error;
-		if (error) throw error
+      
+		  if (error) {
+				console.error("Ошибка при получении счетов:", error.message);
+				return []; 
+			}
 
-		return data
-	} catch (error) {
-		console.error('Database Error:', error)
-		throw new Error('Failed to fetch invoices.')
-	}
+		return data ?? []
+	
+
+	
 }
 
-export async function fetchInvoicesPages(query: string): Promise<Invoice[]> {
-	try {
-		const { data, error } = await supabase
-			.from('invoices')
-			.select('count(*)')
-			.textSearch('customers.name', query)
-		// .or('customers.email.ilike', `%${query}%`)
-		// .or('invoices.amount::text.ilike', `%${query}%`)
-		// .or('invoices.date::text.ilike', `%${query}%`)
-		// .or('invoices.status.ilike', `%${query}%`);
+// export async function fetchInvoicesPages(query: string): Promise<Invoice[]> {
+// 	try {
+// 		const { data, error } = await supabase
+// 			.from('invoices')
+// 			.select('count(*)')
+// 			.textSearch('customers.name', query)
+		
 
-		if (error) throw error
+// 		if (error) throw error
 
-		const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE)
-		return data
-	} catch (error) {
-		console.error('Database Error:', error)
-		throw new Error('Failed to fetch total number of invoices.')
-	}
-}
+		
+// 		return data
+// 	} catch (error) {
+// 		console.error('Database Error:', error)
+// 		throw new Error('Failed to fetch total number of invoices.')
+// 	}
+// }
 
 export async function fetchInvoiceById(id: string) {
 	try {
@@ -190,33 +190,33 @@ export async function fetchInvoiceById(id: string) {
 	}
 }
 
-export async function fetchFilteredCustomers(query: string) {
-	try {
-		const { data, error } = await supabase
-			.from('customers')
-			.select(
-				'id, name, email, image_url, total_invoices, total_pending, total_paid'
-			)
-			.join('invoices', 'customer_id', 'id', {
-				foreignTable: 'invoices',
-				select: 'amount, status',
-			})
-			.textSearch('name', query)
-			.or('email.ilike', `%${query}%`)
-			.group('id, name, email, image_url')
-			.order('name', { ascending: true })
+// export async function fetchFilteredCustomers(query: string) {
+// 	try {
+// 		const { data, error } = await supabase
+// 			.from('customers')
+// 			.select(
+// 				'id, name, email, image_url, total_invoices, total_pending, total_paid'
+// 			)
+// 			.join('invoices', 'customer_id', 'id', {
+// 				foreignTable: 'invoices',
+// 				select: 'amount, status',
+// 			})
+// 			.textSearch('name', query)
+// 			.or('email.ilike', `%${query}%`)
+// 			.group('id, name, email, image_url')
+// 			.order('name', { ascending: true })
 
-		if (error) throw error
+// 		if (error) throw error
 
-		const customers = data.map(customer => ({
-			...customer,
-			total_pending: formatCurrency(customer.total_pending),
-			total_paid: formatCurrency(customer.total_paid),
-		}))
+// 		const customers = data.map(customer => ({
+// 			...customer,
+// 			total_pending: formatCurrency(customer.total_pending),
+// 			total_paid: formatCurrency(customer.total_paid),
+// 		}))
 
-		return customers
-	} catch (err) {
-		console.error('Database Error:', err)
-		throw new Error('Failed to fetch customer table.')
-	}
-}
+// 		return customers
+// 	} catch (err) {
+// 		console.error('Database Error:', err)
+// 		throw new Error('Failed to fetch customer table.')
+// 	}
+// }

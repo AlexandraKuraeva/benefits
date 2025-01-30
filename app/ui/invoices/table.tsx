@@ -5,7 +5,23 @@ import { formatDateToLocal, formatCurrency } from '@/app/lib/utils'
 import { fetchFilteredInvoices } from '@/app/lib/data'
 
 
+interface Customer {
+	name: string;
+	email: string;
+	image_url: string;
+}
+
+interface Invoice {
+	id: number;
+	amount: number;
+	date: string;
+	status: string;
+	customers: Customer | null; 
+}
+
 export default async function InvoicesTable({ query }: { query: string }) {
+
+
 	const invoices  = await fetchFilteredInvoices(query) 
 
 	console.log(invoices)
@@ -22,17 +38,17 @@ export default async function InvoicesTable({ query }: { query: string }) {
 								<div className='flex items-center justify-between border-b pb-4'>
 									<div>
 										<div className='mb-2 flex items-center'>
-											{/* <Image
-                        src={invoice.customers.image_url}
+											 <Image
+                        src={invoice.customers ? invoice.customers.image_url : '/images/avatar.png'}
                         className="mr-2 rounded-full"
                         width={28}
                         height={28}
-                        alt={`${invoice.customers.name}'s profile picture`}
-                      /> */}
-											<p>{invoice?.customers.name}</p>
+                        alt={`${invoice.customers ? invoice.customers.name : 'Unknown customer'}'s profile picture`}
+                      /> 
+											<p>{invoice.customers ? invoice.customers.name : 'Неизвестный клиент'}</p>
 										</div>
 										<p className='text-sm text-gray-500'>
-											{invoice?.customers.email}
+											{invoice.customers?.email ?? "Нет email"}
 										</p>
 									</div>
 									<InvoiceStatus status={invoice.status} />
@@ -90,11 +106,11 @@ export default async function InvoicesTable({ query }: { query: string }) {
                         height={28}
                         alt={`${invoice.customers.name}'s profile picture`}
                       /> */}
-											<p>{invoice?.customers.name}</p>
+											<p>{invoice?.customers?.name}</p>
 										</div>
 									</td>
 									<td className='whitespace-nowrap px-3 py-3'>
-										{invoice?.customers.email}
+										{invoice?.customers?.email}
 									</td>
 									<td className='whitespace-nowrap px-3 py-3'>
 										{formatCurrency(invoice.amount)}
